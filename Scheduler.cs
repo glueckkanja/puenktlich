@@ -41,6 +41,11 @@ namespace Puenktlich
         /// <value>The function returning a timestamp.</value>
         public Func<DateTimeOffset> Clock { get; set; }
 
+        public bool IsRunning
+        {
+            get { return _running.IsSet; }
+        }
+
         /// <summary>
         ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
