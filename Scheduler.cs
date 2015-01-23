@@ -16,8 +16,9 @@ namespace Puenktlich
             new Dictionary<object, IJobRegistration<object>>();
 
         private readonly object _jobsLock = new object();
+        private readonly ManualResetEventSlim _running = new ManualResetEventSlim();
 
-        private ManualResetEventSlim _running = new ManualResetEventSlim();
+        private bool _disposed;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="Scheduler" /> class.
@@ -52,7 +53,7 @@ namespace Puenktlich
         /// </summary>
         public void Dispose()
         {
-            if (_running == null) return;
+            if (_disposed) return;
 
             Stop();
 
@@ -62,10 +63,12 @@ namespace Puenktlich
                 {
                     job.Value.Dispose();
                 }
+
+                _jobs.Clear();
             }
 
             _running.Dispose();
-            _running = null;
+            _disposed = true;
         }
 
         public event EventHandler<JobExceptionEventArgs> JobException;
@@ -151,7 +154,7 @@ namespace Puenktlich
         }
 
         /// <summary>
-        ///     Returns all jobs which have the specified type <typeparamref name="T"/> as data type.
+        ///     Returns all jobs which have the specified type <typeparamref name="T" /> as data type.
         /// </summary>
         /// <typeparam name="T">The data type to look for</typeparam>
         public ReadOnlyCollection<JobInfo<T>> GetAllJobs<T>()
