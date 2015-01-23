@@ -215,6 +215,10 @@ namespace Puenktlich
 
         internal void RefreshJob(IJobRegistration<object> job)
         {
+            // this prevents invalidating triggers like NowTrigger when the scheduler is not started and adding jobs.
+            // we'll refresh every job when starting the scheduler anyway.
+            if (!_running.IsSet) return;
+
             DateTimeOffset now = Clock();
             DateTimeOffset next = DateTimeOffset.MaxValue;
 
