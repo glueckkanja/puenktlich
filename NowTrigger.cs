@@ -8,7 +8,12 @@ namespace Puenktlich
     /// </summary>
     public class NowTrigger : Trigger
     {
-        private const string Expression = "now";
+        private const string NowExpression = "now";
+
+        public override string Expression
+        {
+            get { return NowExpression; }
+        }
 
         private bool _fired;
 
@@ -23,7 +28,7 @@ namespace Puenktlich
 
         public static bool TryParse(string expression, out NowTrigger trigger)
         {
-            if (expression == Expression)
+            if (expression == NowExpression)
             {
                 trigger = new NowTrigger();
                 return true;
@@ -35,7 +40,7 @@ namespace Puenktlich
 
         public override string ToString()
         {
-            return Expression;
+            return NowExpression;
         }
     }
 }

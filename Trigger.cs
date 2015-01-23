@@ -9,6 +9,11 @@ namespace Puenktlich
     public interface ITrigger
     {
         /// <summary>
+        ///     Gets the expression for this trigger.
+        /// </summary>
+        string Expression { get; }
+
+        /// <summary>
         ///     Gets the (possibly infinite) upcoming occurrences of this trigger after <paramref name="baseTime" />.
         /// </summary>
         /// <param name="baseTime">The base time at which to start the calculation.</param>
@@ -31,6 +36,11 @@ namespace Puenktlich
         public abstract IEnumerable<DateTimeOffset> GetUpcomingOccurrences(DateTimeOffset baseTime);
 
         /// <summary>
+        ///     Gets the expression for this trigger.
+        /// </summary>
+        public abstract string Expression { get; }
+
+        /// <summary>
         ///     Create a build-in trigger from an expression.
         /// </summary>
         /// <param name="expression"></param>
@@ -41,6 +51,11 @@ namespace Puenktlich
 
             if (NowTrigger.TryParse(expression, out nowTrigger))
                 return nowTrigger;
+
+            ManualTrigger manualTrigger;
+
+            if (ManualTrigger.TryParse(expression, out manualTrigger))
+                return manualTrigger;
 
             CronTrigger cronTrigger;
 

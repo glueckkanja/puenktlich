@@ -19,6 +19,8 @@ namespace Puenktlich
         private readonly List<int> _seconds = new List<int>();
         private readonly List<int> _weekdays = new List<int>();
 
+        private string _expression;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="CronTrigger" /> class.
         /// </summary>
@@ -26,7 +28,7 @@ namespace Puenktlich
         /// <param name="targetTimeZone">The target timezone -or- <c>null</c> if no conversion is required.</param>
         public CronTrigger(string expression, TimeZoneInfo targetTimeZone = null)
         {
-            Expression = expression;
+            _expression = expression;
             TargetTimeZone = targetTimeZone;
 
             ParseParts();
@@ -36,7 +38,10 @@ namespace Puenktlich
         ///     Gets the cron expression.
         /// </summary>
         /// <value>The cron expression.</value>
-        public string Expression { get; private set; }
+        public override string Expression
+        {
+            get { return _expression; }
+        }
 
         public TimeZoneInfo TargetTimeZone { get; private set; }
 
