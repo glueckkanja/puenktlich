@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -135,6 +136,37 @@ namespace Puenktlich
             }
 
             return new JobInfo<T>((IJobRegistration<T>) job, this);
+        }
+
+        /// <summary>
+        ///     Returns all jobs.
+        /// </summary>
+        /// <returns></returns>
+        public ReadOnlyCollection<JobInfo<object>> GetAllJobs()
+        {
+            lock (_jobsLock)
+            {
+                return new ReadOnlyCollection<JobInfo<object>>(_jobs.Values.Select(j => new JobInfo<object>(j, this)).ToList());
+            }
+        }
+
+        /// <summary>
+        ///     Returns all jobs which have the specified type <typeparamref name="T"/> as data type.
+        /// </summary>
+        /// <typeparam name="T">The data type to look for</typeparam>
+        public ReadOnlyCollection<JobInfo<T>> GetAllJobs<T>()
+        {
+            List<JobInfo<T>> jobs;
+
+            lock (_jobsLock)
+            {
+                jobs = _jobs.Values
+                    .OfType<IJobRegistration<T>>()
+                    .Select(j => new JobInfo<T>(j, this))
+                    .ToList();
+            }
+
+            return new ReadOnlyCollection<JobInfo<T>>(jobs);
         }
 
         internal IJobRegistration<T> GetJob<T>(T data)
