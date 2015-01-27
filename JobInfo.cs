@@ -65,7 +65,13 @@ namespace Puenktlich
             IJobRegistration<T> job = _scheduler.GetJob(Data);
 
             job.IsPaused = true;
-            job.Timer.Change(Timeout.Infinite, Timeout.Infinite);
+
+            lock (job.TimerLock)
+            {
+                if (job.Timer == null) throw new ObjectDisposedException("Job");
+
+                job.Timer.Change(Timeout.Infinite, Timeout.Infinite);
+            }
         }
 
         public void Resume()

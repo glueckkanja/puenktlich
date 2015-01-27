@@ -211,7 +211,13 @@ namespace Puenktlich
             {
                 foreach (var job in _jobs)
                 {
-                    job.Value.Timer.Change(Timeout.Infinite, Timeout.Infinite);
+                    lock (job.Value.TimerLock)
+                    {
+                        if (job.Value.Timer == null)
+                            continue;
+
+                        job.Value.Timer.Change(Timeout.Infinite, Timeout.Infinite);
+                    }
                 }
             }
         }
@@ -261,11 +267,17 @@ namespace Puenktlich
                 return;
             }
 
-            now = Clock();
+            lock (job.TimerLock)
+            {
+                if (job.Timer == null)
+                    return;
 
-            long dueTime = Math.Max(0, (long) (next - now).TotalMilliseconds);
+                now = Clock();
 
-            job.Timer.Change(dueTime, -1);
+                long dueTime = Math.Max(0, (long) (next - now).TotalMilliseconds);
+
+                job.Timer.Change(dueTime, -1);
+            }
         }
 
         private void OnTick(object state)

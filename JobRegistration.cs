@@ -8,7 +8,9 @@ namespace Puenktlich
 {
     internal interface IJobRegistration<out T> : IDisposable
     {
+        object TimerLock { get; }
         object TriggersLock { get; }
+
         IList<ITrigger> Triggers { get; set; }
         IExecutionContext<T> ExecutionContext { get; }
         Timer Timer { get; }
@@ -21,10 +23,13 @@ namespace Puenktlich
     {
         protected JobRegistration()
         {
+            TimerLock = new object();
             TriggersLock = new object();
         }
 
+        public object TimerLock { get; private set; }
         public object TriggersLock { get; private set; }
+
         public IList<ITrigger> Triggers { get; set; }
 
         public IExecutionContext<T> ExecutionContext { get; internal set; }
@@ -33,13 +38,19 @@ namespace Puenktlich
 
         public void Dispose()
         {
-            Timer.Dispose();
-            Timer = null;
+            lock (TimerLock)
+            {
+                Timer.Dispose();
+                Timer = null;
+            }
         }
 
         public void Init(TimerCallback onTick, object state)
         {
-            Timer = new Timer(onTick, state, Timeout.Infinite, Timeout.Infinite);
+            lock (TimerLock)
+            {
+                Timer = new Timer(onTick, state, Timeout.Infinite, Timeout.Infinite);
+            }
         }
 
         public abstract void Execute(Action onComplete, Action<Exception> onError);
