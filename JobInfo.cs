@@ -19,6 +19,11 @@ namespace Puenktlich
             _triggerCollection = new TriggerCollection((IJobRegistration<object>) _job, scheduler);
         }
 
+        public bool IsRunning
+        {
+            get { return _job.IsRunning; }
+        }
+
         public bool IsPaused
         {
             get { return _job.IsPaused; }

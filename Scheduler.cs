@@ -141,6 +141,16 @@ namespace Puenktlich
             return new JobInfo<T>((IJobRegistration<T>) job, this);
         }
 
+        public ReadOnlyCollection<JobInfo<object>> GetRunningJobs()
+        {
+            lock (_jobsLock)
+            {
+                return new ReadOnlyCollection<JobInfo<object>>(_jobs.Values
+                    .Where(x => x.IsRunning)
+                    .Select(j => new JobInfo<object>(j, this)).ToList());
+            }
+        }
+
         /// <summary>
         ///     Returns all jobs.
         /// </summary>
@@ -292,6 +302,8 @@ namespace Puenktlich
             {
                 job.ExecutionContext.ActualFireTime = Clock();
 
+                job.IsRunning = true;
+
                 job.Execute(
                     () => HandleJobFinished(job),
                     e => HandleJobException(job, e));
@@ -300,6 +312,8 @@ namespace Puenktlich
 
         private void HandleJobFinished(IJobRegistration<object> job)
         {
+            job.IsRunning = false;
+
             if (_running.IsSet)
             {
                 // in case somebody stops the scheduler in a job
@@ -314,6 +328,8 @@ namespace Puenktlich
 
         private void HandleJobException(IJobRegistration<object> job, Exception exception)
         {
+            job.IsRunning = false;
+
             var aggregateException = exception as AggregateException;
 
             if (aggregateException != null && aggregateException.InnerExceptions.Count == 1)

@@ -14,6 +14,7 @@ namespace Puenktlich
         IList<ITrigger> Triggers { get; set; }
         IExecutionContext<T> ExecutionContext { get; }
         Timer Timer { get; }
+        bool IsRunning { get; set; }
         bool IsPaused { get; set; }
         void Init(TimerCallback onTick, object state);
         void Execute(Action onComplete, Action<Exception> onError);
@@ -34,6 +35,7 @@ namespace Puenktlich
 
         public IExecutionContext<T> ExecutionContext { get; internal set; }
         public Timer Timer { get; private set; }
+        public bool IsRunning { get; set; }
         public bool IsPaused { get; set; }
 
         public void Dispose()
